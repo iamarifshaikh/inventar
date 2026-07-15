@@ -127,6 +127,14 @@
     color: var(--color-dim);
   }
 
+  /* Grid items default to `min-width: auto`, so a single `truncate`
+     (white-space: nowrap) descendant forces its track wider than the
+     viewport and scrolls the page sideways. Let tracks shrink instead —
+     `:where()` keeps specificity at 0, so any min-w-* utility still wins. */
+  :where(.grid) > * {
+    min-width: 0;
+  }
+
   /* Kill number-input spinners */
   input[type='number']::-webkit-outer-spin-button,
   input[type='number']::-webkit-inner-spin-button {
@@ -139,11 +147,19 @@
 }
 
 @layer components {
-  /* Frosted surface used for nav + floating panels */
+  /* Frosted surface used for nav + floating panels.
+     Falls back to a near-opaque panel where backdrop-filter is
+     unsupported, so content scrolling underneath never bleeds through. */
   .glass {
-    background: color-mix(in oklab, var(--color-surface) 78%, transparent);
+    background: color-mix(in oklab, var(--color-surface) 96%, transparent);
     backdrop-filter: blur(18px) saturate(140%);
     -webkit-backdrop-filter: blur(18px) saturate(140%);
+  }
+
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .glass {
+      background: color-mix(in oklab, var(--color-surface) 78%, transparent);
+    }
   }
 
   .card {
